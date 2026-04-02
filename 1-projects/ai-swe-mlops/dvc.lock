@@ -1,0 +1,92 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/preprocess.py
+    deps:
+    - path: data/raw/iris.csv
+      hash: md5
+      md5: 10f5f61b137fa708403ea5c480386bfe
+      size: 2908
+    - path: params.yaml
+      hash: md5
+      md5: 5e8d2e28cef2634eb2bf97fa5acbdacc
+      size: 304
+    - path: src/preprocess.py
+      hash: md5
+      md5: f386bc6263352022ccb018cab8991b00
+      size: 6041
+    params:
+      params.yaml:
+        data.random_state: 42
+        data.test_size: 0.2
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 87c8841308234c09b040db3519f4d308.dir
+      size: 2966
+      nfiles: 2
+  train:
+    cmd: python src/train.py hydra.run.dir=. hydra.output_subdir=null
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 87c8841308234c09b040db3519f4d308.dir
+      size: 2966
+      nfiles: 2
+    - path: src/train.py
+      hash: md5
+      md5: c84515006167738a7571923edd02b0cb
+      size: 9707
+    params:
+      params.yaml:
+        model.max_depth: 15
+        model.model_type: random_forest
+        model.n_estimators: 200
+        model.random_state: 42
+        xgboost.colsample_bytree: 0.8
+        xgboost.learning_rate: 0.1
+        xgboost.max_depth: 6
+        xgboost.n_estimators: 200
+        xgboost.subsample: 0.8
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 80efcd7039573c70542988a5baa8c81a
+      size: 317128
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 87c8841308234c09b040db3519f4d308.dir
+      size: 2966
+      nfiles: 2
+    - path: models/model.pkl
+      hash: md5
+      md5: bba2e4971503edd49d63496cd2400824
+      size: 158136
+    - path: src/evaluate.py
+      hash: md5
+      md5: 907ca86b6f24168cfcb59bff72909f61
+      size: 7033
+    outs:
+    - path: reports/confusion_matrix.png
+      hash: md5
+      md5: 5c4b4ef4e181b3c263663ba608886524
+      size: 29206
+    - path: reports/metrics.json
+      hash: md5
+      md5: 426f57d4f1163f4dbcd3898757637985
+      size: 86
+  validate:
+    cmd: python src/validate.py
+    deps:
+    - path: src/validate.py
+      hash: md5
+      md5: d90ef4e3d69fde3efa4e33c195004667
+      size: 6000
+    outs:
+    - path: data/raw/iris.csv
+      hash: md5
+      md5: 10f5f61b137fa708403ea5c480386bfe
+      size: 2908

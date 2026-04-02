@@ -1,0 +1,50 @@
+stages:
+  validate:
+    cmd: python src/validate.py
+    deps:
+      - src/validate.py
+    outs:
+      - data/raw/iris.csv
+
+  prepare:
+    cmd: python src/preprocess.py
+    deps:
+      - src/preprocess.py
+      - data/raw/iris.csv
+      - params.yaml
+    params:
+      - data.test_size
+      - data.random_state
+    outs:
+      - data/processed
+
+  train:
+    cmd: python src/train.py hydra.run.dir=. hydra.output_subdir=null
+    deps:
+      - src/train.py
+      - data/processed
+    params:
+      - model.model_type
+      - model.n_estimators
+      - model.max_depth
+      - model.random_state
+      - xgboost.n_estimators
+      - xgboost.max_depth
+      - xgboost.learning_rate
+      - xgboost.subsample
+      - xgboost.colsample_bytree
+    outs:
+      - models/model.pkl
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - src/evaluate.py
+      - models/model.pkl
+      - data/processed
+    metrics:
+      - reports/metrics.json:
+          cache: false
+    plots:
+      - reports/confusion_matrix.png:
+          cache: false
