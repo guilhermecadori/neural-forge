@@ -63,8 +63,8 @@ stages:
       nfiles: 2
     - path: models/model.pkl
       hash: md5
-      md5: bba2e4971503edd49d63496cd2400824
-      size: 158136
+      md5: 80efcd7039573c70542988a5baa8c81a
+      size: 317128
     - path: src/evaluate.py
       hash: md5
       md5: 907ca86b6f24168cfcb59bff72909f61

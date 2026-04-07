@@ -1,0 +1,6 @@
+[core]
+    remote = onedrive
+# The 'onedrive' remote URL is intentionally not set here.
+# It is a personal, machine-specific path defined in .dvc/config.local,
+# which is git-ignored. See docs/adr/0001-dvc-remote-strategy.md
+# in the monorepo root for the rationale and setup instructions.

@@ -38,13 +38,13 @@ htmlcov/
 mlruns/
 mlartifacts/
 
-# DVC
-/tmp/
+# DVC — per-project state that must never be committed.
+# NOTE: .dvc pointer files (data/**/*.dvc, models/**/*.dvc) MUST be
+# committed. Do NOT add a blanket '*.dvc' pattern here.
 .dvc/tmp/
 .dvc/cache/
 .dvc/config.local
-/tmp/dvcstore/
-*.dvc
+.dvc/plots/
 
 # Models (large binaries — use DVC to track)
 models/*.pkl
