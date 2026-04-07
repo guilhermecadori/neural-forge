@@ -1,8 +1,8 @@
 
 
 # --- baseline (templates/.gitignore-baseline) ---
-data/
-!data/.gitkeep
+data/**
+!data/**/
 !data/**/.gitkeep
 .env
 .env.*

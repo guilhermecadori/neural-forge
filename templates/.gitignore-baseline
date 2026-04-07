@@ -12,8 +12,15 @@
 # --- Data: versioned via DVC, never git ------------------------------------
 # GitHub rejects files > 100 MB and performs poorly with binary blobs.
 # All dataset formats (CSV, Parquet, images, audio, etc.) belong in DVC.
-data/
-!data/.gitkeep
+#
+# Pattern rationale: `data/` alone would exclude the directory as a whole
+# and git would stop recursing, so `!data/**/.gitkeep` re-includes would
+# never fire. Using `data/**` ignores every file under data/ at any depth
+# while still letting git walk the tree; `!data/**/` keeps subdirectories
+# traversable, and `!data/**/.gitkeep` tracks the sentinel files that
+# preserve the empty-directory structure across clones.
+data/**
+!data/**/
 !data/**/.gitkeep
 
 # --- Secrets: never, under any circumstance, commit -----------------------
