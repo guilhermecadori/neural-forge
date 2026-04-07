@@ -6,8 +6,6 @@ A personal monorepo for exploring and experimenting with AI/ML software engineer
 
 - **packages/** — modular ML components: `data`, `training`, `inference`, `evaluation`, `monitoring`
 - **projects/** — self-contained explorations
-  - `ai-swe-mlops` — AI software engineering and MLOps patterns
-  - `mlops-git-dvc` — versioning and reproducibility with Git and DVC
   - `template-project-structure` — reference project scaffold
 - **templates/** — opinionated starters and shared conventions for ML projects, Python packages, service APIs, and benchmarking harnesses
 - **experiments/** — sandbox for focused, short-lived investigations
