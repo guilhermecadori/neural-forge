@@ -1,0 +1,73 @@
+name: gitignore-baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify every .gitignore is a superset of the baseline
+        shell: bash
+        run: |
+          set -u
+          baseline="templates/.gitignore-baseline"
+          if [ ! -f "$baseline" ]; then
+            echo "::error::baseline file $baseline is missing"
+            exit 1
+          fi
+
+          # Collect required patterns: non-blank, non-comment lines.
+          required_tmp=$(mktemp)
+          grep -vE '^\s*(#|$)' "$baseline" > "$required_tmp" || true
+          if [ ! -s "$required_tmp" ]; then
+            echo "::error::baseline $baseline contains no enforceable patterns"
+            exit 1
+          fi
+
+          # Targets: monorepo root + every project directory.
+          targets=(".gitignore")
+          for project_dir in projects/*/; do
+            [ -d "$project_dir" ] || continue
+            targets+=("${project_dir}.gitignore")
+          done
+
+          failures=0
+          for target in "${targets[@]}"; do
+            if [ ! -f "$target" ]; then
+              echo "::error file=$target::missing .gitignore (baseline requires one)"
+              failures=$((failures + 1))
+              continue
+            fi
+
+            missing=()
+            while IFS= read -r pattern; do
+              # Literal, whole-line match anywhere in the target file.
+              if ! grep -Fxq -- "$pattern" "$target"; then
+                missing+=("$pattern")
+              fi
+            done < "$required_tmp"
+
+            if [ ${#missing[@]} -gt 0 ]; then
+              failures=$((failures + 1))
+              echo "::error file=$target::missing ${#missing[@]} baseline pattern(s)"
+              for p in "${missing[@]}"; do
+                echo "  - $p"
+              done
+            else
+              echo "ok: $target"
+            fi
+          done
+
+          rm -f "$required_tmp"
+
+          if [ "$failures" -gt 0 ]; then
+            echo ""
+            echo "::error::$failures file(s) violate templates/.gitignore-baseline"
+            echo "See docs/adr/0002-gitignore-baseline.md for the rules."
+            exit 1
+          fi

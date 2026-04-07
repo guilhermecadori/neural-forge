@@ -25,3 +25,22 @@ models/*
 # Artifacts: large outputs excluded, structure retained
 artifacts/**/*
 !artifacts/**/.gitkeep
+
+
+# --- baseline (templates/.gitignore-baseline) ---
+data/
+!data/.gitkeep
+!data/**/.gitkeep
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
