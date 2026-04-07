@@ -26,8 +26,11 @@ Thumbs.db
 # MLflow
 mlruns/
 
-# DVC
+# DVC — per-project state that must never be committed
 .dvc/tmp/
+.dvc/cache/
+.dvc/config.local
+.dvc/plots/
 
 # Models & artifacts
 *.pkl
