@@ -7,17 +7,11 @@
 #
 # What it does:
 #   1. Runs `dvc init` in the target project (idempotent).
-#   2. Writes a committed .dvc/config that declares the 'onedrive' remote
-#      as the default, with NO url (machine-specific paths live elsewhere).
-#   3. Writes a git-ignored .dvc/config.local with the absolute OneDrive
-#      path for this machine, derived from $ONEDRIVE_DVC or a sensible
-#      Windows default.
-#   4. Creates the corresponding folder on disk.
-#
-# Required environment:
-#   ONEDRIVE_DVC   Optional. Absolute path to your personal DVCStore root.
-#                  Defaults to "$OneDrive/DVCStore" if OneDrive is set,
-#                  otherwise "C:/Users/$USER/OneDrive/DVCStore".
+#   2. Writes a committed .dvc/config declaring a 'local' remote whose URL
+#      is the repo-relative path ../../../.dvc-store/<project-name>.
+#      DVC resolves this relative to .dvc/config, so it works on every
+#      clone and every CI runner with zero per-machine setup.
+#   3. Creates the matching folder under .dvc-store/ at the monorepo root.
 
 set -eu
 
@@ -32,25 +26,21 @@ if [ ! -d "$project_path" ]; then
   exit 1
 fi
 
+# Resolve the monorepo root as the directory containing this script's parent.
+script_dir=$(cd "$(dirname "$0")" && pwd)
+repo_root=$(cd "$script_dir/.." && pwd)
+
 project_name=$(basename "$project_path")
-
-# Resolve the DVCStore root.
-if [ -n "${ONEDRIVE_DVC:-}" ]; then
-  store_root=$ONEDRIVE_DVC
-elif [ -n "${OneDrive:-}" ]; then
-  store_root="$OneDrive/DVCStore"
-elif [ -n "${OneDriveConsumer:-}" ]; then
-  store_root="$OneDriveConsumer/DVCStore"
-else
-  store_root="C:/Users/${USER:-$USERNAME}/OneDrive/DVCStore"
-fi
-
-remote_path="$store_root/neural-forge/$project_name"
+store_path="$repo_root/.dvc-store/$project_name"
+remote_url="../../../.dvc-store/$project_name"
 
 echo "==> project:     $project_path"
-echo "==> remote path: $remote_path"
+echo "==> store path:  $store_path"
+echo "==> remote url:  $remote_url  (resolved relative to .dvc/config)"
 
-mkdir -p "$remote_path"
+mkdir -p "$store_path"
+# Preserve the folder even when empty so CI clones see the remote target.
+: > "$store_path/.gitkeep"
 
 cd "$project_path"
 
@@ -60,20 +50,15 @@ else
   echo "==> .dvc already exists, skipping 'dvc init'"
 fi
 
-# Committed config: declare the remote and default, no URL.
+# Committed config: declare the 'local' remote with a repo-relative URL.
+# No config.local. No env vars. No credentials.
 cat > .dvc/config <<EOF
 [core]
-    remote = onedrive
-# The 'onedrive' remote URL is intentionally not set here.
-# It is a personal, machine-specific path defined in .dvc/config.local,
-# which is git-ignored. See docs/adr/0001-dvc-remote-strategy.md
-# in the monorepo root for the rationale and setup instructions.
-EOF
-
-# Machine-local config: the real absolute path.
-cat > .dvc/config.local <<EOF
-['remote "onedrive"']
-    url = $remote_path
+    remote = local
+['remote "local"']
+    url = $remote_url
+# The remote URL is repo-relative and resolved against this config file.
+# See docs/adr/0001-dvc-remote-strategy.md for the rationale.
 EOF
 
 echo "==> done. Verify with:  (cd $project_path && dvc remote list)"

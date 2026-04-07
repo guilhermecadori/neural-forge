@@ -1,6 +1,6 @@
-# ADR 0001: DVC is per-project, with OneDrive as the personal remote
+# ADR 0001: DVC is per-project, with an in-repo local store as the remote
 
-- **Status:** Accepted
+- **Status:** Accepted (supersedes the OneDrive variant of this ADR)
 - **Date:** 2026-04-07
 - **Scope:** `neural-forge` monorepo
 
@@ -18,6 +18,11 @@ Two orthogonal decisions had to be made:
 2. **What backs the remote?** Local filesystem, personal cloud (OneDrive,
    GDrive), or a proper object store (S3, Azure Blob, GCS)?
 
+This monorepo is a solo learning environment. Datasets are small (sample-sized,
+tutorial-sized), CI reproducibility matters more than cross-machine cloud sync,
+and keeping credentials and machine-specific paths out of the public repo is a
+hard constraint.
+
 ## Decision
 
 ### 1. DVC is initialized per project, not at the monorepo root
@@ -26,101 +31,124 @@ Each project that needs data/model versioning runs `dvc init` in its own
 subdirectory (e.g. `projects/ai-swe-mlops/`). The monorepo root has no
 `.dvc/` directory and no top-level `dvc.yaml`.
 
-### 2. The default personal remote is a folder inside the user's OneDrive
+### 2. The default remote is a committed folder at the monorepo root
 
-Projects declare a remote named `onedrive` pointing at
-`<OneDrive>/DVCStore/neural-forge/<project-name>/`. OneDrive's desktop client
-handles cloud sync transparently; DVC treats it as a plain local remote.
+A single directory `.dvc-store/` lives at the monorepo root and is **committed
+to git**. Each project declares a default remote named `local` pointing at
+`.dvc-store/<project-name>/` via a repo-relative path. DVC resolves relative
+remote URLs against the `.dvc/config` file that declares them, so the path
+`../../../.dvc-store/<project-name>` resolves identically on every clone,
+every machine, and every CI runner.
 
-### 3. Machine-specific paths live in `.dvc/config.local`, not `.dvc/config`
+No `.dvc/config.local`. No environment variables. No per-machine setup. No
+cloud credentials. `git clone` is all the setup any developer or CI job needs.
 
-The committed `.dvc/config` declares the `onedrive` remote as the default but
-**does not** set its `url`. The absolute filesystem path is set in
-`.dvc/config.local`, which DVC's `.dvc/.gitignore` excludes from version
-control. This keeps personal paths, usernames, and drive letters out of the
-public repo.
+### 3. Small data only
+
+Because the DVC store is committed to git, its contents count against repo
+size. This strategy is explicitly scoped to learning-sized artifacts. Any
+project whose `.dvc-store/` contribution passes roughly 100 MB should migrate
+to object storage (S3 / Azure Blob / GCS) as a second, primary remote — see
+"When to outgrow this" below.
 
 ## Rationale
 
 ### Why per-project DVC
 
 - **Blast radius.** A single root-level `.dvc/` would couple unrelated
-  artifacts (tutorial data, real models, throwaway experiments) into one
-  cache and one lock file. Failure in one project's pipeline would block
-  others.
+  artifacts into one cache and one lock file. Failure in one project's
+  pipeline would block others.
 - **Remote flexibility.** Per-project config lets each project point at the
-  storage that fits its data volume and sensitivity. One project can use
-  OneDrive, another can later switch to S3 without affecting the rest.
+  storage that fits its data volume. One project can use the in-repo store,
+  another can later switch to S3 without affecting the rest.
 - **Matches DVC's design.** DVC's pipeline, params, and lock mechanics are
-  scoped to a working tree. Forcing a single root usually ends in an un-forcing
-  migration later.
-- **Experiments stay cheap.** Code in `experiments/` should not be dragged
-  into DVC bookkeeping.
+  scoped to a working tree.
 
-### Why OneDrive as the personal remote
+### Why an in-repo committed store
 
-- **Zero credentials, zero extras.** No `dvc[s3]`, `dvc[azure]`, no access
-  keys in config, no risk of leaking secrets via a public `.dvc/config`.
-- **Already paid for and already syncing.** No additional cost or
-  infrastructure for personal work.
-- **Cross-machine sync for free.** OneDrive syncs `DVCStore/` across the
-  author's devices automatically.
-- **Not suitable for CI or collaborators.** GitHub Actions runners have no
-  OneDrive mount. This is acknowledged as a limitation, not a flaw — see
-  Consequences.
+- **CI works out of the box.** GitHub Actions clones the repo and already has
+  the data; `dvc pull` is either a no-op or a local-filesystem copy. No
+  credentials to provision, no second remote to add later.
+- **Zero credentials, zero extras.** No `dvc[s3]`, no access keys, no
+  OneDrive path leakage, no sync conflicts.
+- **Fully reproducible across clones.** The same commit always resolves to
+  the same data on every machine — no "works on my laptop because OneDrive
+  finished syncing."
+- **Solo-friendly.** Single source of truth, no cross-machine sync
+  coordination, no stale caches.
+- **Reversible.** If any project outgrows the size budget, add an object-store
+  remote and make it the default; leave the in-repo `local` remote alongside
+  as a fallback or delete it.
 
-### Why `.dvc/config.local` instead of an env-var interpolation
+### Why not OneDrive (previous decision)
 
-DVC's local-remote URLs do **not** expand environment variables like
-`${ONEDRIVE_DVC}`. The CLI treats such strings as literal path segments. The
-supported, documented mechanism for per-machine overrides is
-`.dvc/config.local`, which DVC auto-excludes from git on `dvc init`. It is
-the canonical solution and requires no workarounds.
+An earlier version of this ADR used OneDrive as a personal remote via a
+git-ignored `.dvc/config.local`. It was rejected because:
+
+- **CI could not `dvc pull`** — GitHub runners have no OneDrive mount. The
+  workflow had to manually stub data or skip reproducibility checks.
+- **Machine-specific setup** — every clone required exporting `ONEDRIVE_DVC`
+  and running a bootstrap script before DVC commands worked.
+- **Sync-race hazards** — concurrent pushes from two machines before OneDrive
+  finished syncing could corrupt the remote.
+
+Given the data sizes involved here, those costs outweigh the "cloud-backed"
+benefit OneDrive was supposed to provide.
 
 ## Consequences
 
 ### Positive
 
-- The public `.dvc/config` contains no usernames, drive letters, or credentials.
-- Each project can evolve its storage strategy independently.
-- Onboarding a second machine is a matter of setting one value in
-  `config.local` — no repo changes, no git churn.
-- The decision is reversible: projects that outgrow OneDrive can add an S3
-  or Azure remote alongside or instead, without affecting others.
+- `git clone` is the only setup. No bootstrap, no env vars, no credentials.
+- CI reproduces pipelines end-to-end with no extra infrastructure.
+- `.dvc/config` is fully committed and portable — no `config.local`.
+- Each project can still evolve its storage strategy independently (add S3,
+  switch defaults, etc.) without touching other projects.
 
 ### Negative / accepted trade-offs
 
-- **CI cannot `dvc pull`** from the OneDrive remote. Any project that needs
-  CI to reproduce pipelines end-to-end must add a second remote backed by
-  object storage. This is accepted until a project actually needs CI
-  reproduction.
-- **Concurrent pushes from two machines before OneDrive finishes syncing**
-  can cause sync conflicts. Acceptable for solo workflow; a real cloud
-  remote would be required for multi-writer scenarios.
-- **OneDrive Files-On-Demand** may mark rarely-used cache files as
-  cloud-only, causing transparent re-downloads on access. Functional, but
-  slower than a fully materialized local cache.
-- **Each developer must set their own `config.local`** once per clone.
-  Documented in the project README and in `scripts/dvc-bootstrap.sh`.
+- **Repo size grows with tracked data.** This is the core cost. Datasets
+  measured in hundreds of MB or more do not belong in `.dvc-store/`.
+- **No cross-machine sync beyond git.** Not relevant for solo workflow; a
+  cloud remote would be required for multi-writer scenarios or very large
+  datasets.
+- **No deduplication across projects.** Each project's chunk of the store is
+  independent. Acceptable because projects are independent by design.
+
+## When to outgrow this
+
+Migrate a project to object storage when **any** of the following is true:
+
+- Its `.dvc-store/<project>/` folder approaches 100 MB or meaningfully slows
+  down `git clone` / `git gc`.
+- The project starts collaborating with non-local contributors who should not
+  pull large binaries just to work on code.
+- Sensitivity or licensing makes committing the data to a git history
+  inappropriate.
+
+Migration recipe:
+
+```bash
+cd projects/<name>
+dvc remote add -d s3remote s3://<bucket>/<prefix>
+dvc push -r s3remote
+# Optionally keep the 'local' remote as a fallback, or remove it and purge
+# .dvc-store/<name>/ from the repo via git filter-repo.
+```
 
 ## How to apply this decision to a new project
 
-```bash
-cd projects/<new-project>
-dvc init
-# Commit the .dvc/ scaffolding DVC creates.
+Use the bootstrap script:
 
-# Register the default remote (no URL — that lives in config.local).
-dvc remote add -d onedrive placeholder
-# Then edit .dvc/config to remove the url line, leaving only the remote
-# declaration. Or use the bootstrap script:
-../../scripts/dvc-bootstrap.sh <new-project>
+```bash
+scripts/dvc-bootstrap.sh projects/<new-project>
 ```
 
-The bootstrap script at `scripts/dvc-bootstrap.sh` automates the above.
+It runs `dvc init`, writes a committed `.dvc/config` with the `local` remote
+declared at `../../../.dvc-store/<new-project>`, and creates the matching
+folder under `.dvc-store/`.
 
 ## References
 
 - DVC docs: [Remote storage](https://dvc.org/doc/user-guide/data-management/remote-storage)
-- DVC docs: [`config.local`](https://dvc.org/doc/command-reference/config#local)
 - Monorepo ML project template: `templates/ml-project.md`

@@ -1,6 +1,6 @@
 [core]
-    remote = onedrive
-# The 'onedrive' remote URL is intentionally not set here.
-# It is a personal, machine-specific path defined in .dvc/config.local,
-# which is git-ignored. See docs/adr/0001-dvc-remote-strategy.md
-# in the monorepo root for the rationale and setup instructions.
+    remote = local
+['remote "local"']
+    url = ../../../.dvc-store/ai-swe-mlops
+# The remote URL is repo-relative and resolved against this config file.
+# See docs/adr/0001-dvc-remote-strategy.md for the rationale.

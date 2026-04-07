@@ -26,7 +26,7 @@ ai-swe-mlops-project/
 # 1. Install dependencies
 pip install -e ".[dev]"
 
-# 2. Pull data (requires DVC remote configured)
+# 2. Pull data from the in-repo DVC store (no credentials needed)
 dvc pull
 
 # 3. Run the training pipeline
@@ -55,11 +55,17 @@ MLflow is configured locally by default (`mlruns/`). Set `MLFLOW_TRACKING_URI` t
 
 ## Data Versioning
 
-Raw data is tracked with DVC. After adding new data:
+Raw data is tracked with DVC. The DVC remote is an in-repo committed folder
+at `.dvc-store/ai-swe-mlops/` at the monorepo root — no credentials, no
+machine-specific setup, CI works out of the box. See
+`docs/adr/0001-dvc-remote-strategy.md` for the rationale and size budget.
+
+After adding new data:
 
 ```bash
 dvc add data/raw/<file>
 git add data/raw/<file>.dvc .gitignore
-git commit -m "add new raw data"
 dvc push
+git add ../../.dvc-store/ai-swe-mlops
+git commit -m "data: add new raw file"
 ```
