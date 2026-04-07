@@ -1,0 +1,36 @@
+# =============================================================================
+# neural-forge mandatory .gitignore baseline
+# -----------------------------------------------------------------------------
+# Every project under projects/ and the monorepo root MUST include every
+# pattern in this file. The CI workflow .github/workflows/gitignore-baseline.yml
+# and the local pre-commit hook enforce this.
+#
+# Rationale is recorded in docs/adr/0002-gitignore-baseline.md. Do not remove
+# or weaken any entry without first updating the ADR.
+# =============================================================================
+
+# --- Data: versioned via DVC, never git ------------------------------------
+# GitHub rejects files > 100 MB and performs poorly with binary blobs.
+# All dataset formats (CSV, Parquet, images, audio, etc.) belong in DVC.
+data/
+!data/.gitkeep
+!data/**/.gitkeep
+
+# --- Secrets: never, under any circumstance, commit -----------------------
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+
+# --- Python local artifacts -----------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# --- Jupyter ---------------------------------------------------------------
+.ipynb_checkpoints/
