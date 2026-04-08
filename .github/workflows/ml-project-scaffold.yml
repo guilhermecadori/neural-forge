@@ -1,0 +1,76 @@
+name: ml-project-scaffold
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify scaffold file set matches STRUCTURE.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          scaffold="projects/template-project-structure"
+          manifest="templates/ml-project/STRUCTURE.txt"
+
+          if [ ! -d "$scaffold" ]; then
+            echo "::error::scaffold dir $scaffold is missing"
+            exit 1
+          fi
+          if [ ! -f "$manifest" ]; then
+            echo "::error::manifest $manifest is missing"
+            exit 1
+          fi
+
+          expected=$(grep -vE '^\s*(#|$)' "$manifest" | LC_ALL=C sort -u)
+          actual=$(cd "$scaffold" && find . -type f | sed 's|^\./||' | LC_ALL=C sort -u)
+
+          missing=$(comm -23 <(printf '%s\n' "$expected") <(printf '%s\n' "$actual") || true)
+          extra=$(comm -13 <(printf '%s\n' "$expected") <(printf '%s\n' "$actual") || true)
+
+          status=0
+          if [ -n "$missing" ]; then
+            echo "::error::files declared in $manifest but missing from $scaffold:"
+            printf '%s\n' "$missing" | sed 's/^/  - /'
+            status=1
+          fi
+          if [ -n "$extra" ]; then
+            echo "::error::files present in $scaffold but not declared in $manifest:"
+            printf '%s\n' "$extra" | sed 's/^/  - /'
+            status=1
+          fi
+
+          if [ "$status" -ne 0 ]; then
+            echo ""
+            echo "::error::scaffold drift detected — update $manifest and $scaffold together"
+            exit 1
+          fi
+          echo "ok: scaffold matches manifest ($(printf '%s\n' "$expected" | wc -l) files)"
+
+      - name: Verify scaffold README is identical to canonical template README
+        shell: bash
+        run: |
+          set -euo pipefail
+          canonical="templates/ml-project/README.md"
+          scaffold_readme="projects/template-project-structure/README.md"
+
+          if [ ! -f "$canonical" ]; then
+            echo "::error::canonical README $canonical is missing"
+            exit 1
+          fi
+          if [ ! -f "$scaffold_readme" ]; then
+            echo "::error::scaffold README $scaffold_readme is missing"
+            exit 1
+          fi
+
+          if ! diff -q "$canonical" "$scaffold_readme" > /dev/null; then
+            echo "::error::$scaffold_readme has drifted from canonical $canonical"
+            diff -u "$canonical" "$scaffold_readme" || true
+            exit 1
+          fi
+          echo "ok: scaffold README matches canonical"
