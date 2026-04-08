@@ -23,7 +23,8 @@ models/*
 !**/*.dvc
 
 # Artifacts: large outputs excluded, structure retained
-artifacts/**/*
+artifacts/**
+!artifacts/**/
 !artifacts/**/.gitkeep
 
 

@@ -1,0 +1,91 @@
+# Canonical file manifest for the ml-project template scaffold.
+#
+# Source of truth for `projects/template-project-structure/`.
+# CI (.github/workflows/ml-project-scaffold.yml) verifies that the scaffold
+# directory contains exactly these paths — no more, no less.
+#
+# Rules:
+#   - One relative path per line, POSIX separators.
+#   - Lines starting with `#` and blank lines are ignored.
+#   - Paths are matched literally against `find . -type f` output (sorted).
+#   - To add/remove a file in the scaffold, update this file in the same commit.
+
+.github/workflows/ci.yml
+.gitignore
+.pre-commit-config.yaml
+Makefile
+README.md
+artifacts/figures/.gitkeep
+artifacts/logs/.gitkeep
+artifacts/reports/.gitkeep
+configs/.gitkeep
+configs/data/.gitkeep
+configs/evaluation/.gitkeep
+configs/experiments/.gitkeep
+configs/model/.gitkeep
+configs/training/.gitkeep
+data/final/.gitkeep
+data/processed/.gitkeep
+data/raw/.gitkeep
+docker-compose.yml
+docs/.gitkeep
+docs/adr/.gitkeep
+docs/architecture/.gitkeep
+docs/experiments/.gitkeep
+docs/model_cards/.gitkeep
+models/.gitkeep
+notebooks/.gitkeep
+pyproject.toml
+scripts/.gitkeep
+scripts/export_artifacts.py
+scripts/run_batch_inference.py
+scripts/run_eval.py
+scripts/run_train.py
+src/project_name/__init__.py
+src/project_name/common/__init__.py
+src/project_name/common/io.py
+src/project_name/common/logging.py
+src/project_name/common/seed.py
+src/project_name/config/__init__.py
+src/project_name/config/loader.py
+src/project_name/config/settings.py
+src/project_name/data/__init__.py
+src/project_name/data/datasets.py
+src/project_name/data/loaders.py
+src/project_name/data/schemas.py
+src/project_name/data/splits.py
+src/project_name/evaluation/__init__.py
+src/project_name/evaluation/metrics.py
+src/project_name/evaluation/plots.py
+src/project_name/evaluation/reports.py
+src/project_name/evaluation/validators.py
+src/project_name/features/__init__.py
+src/project_name/features/builders.py
+src/project_name/features/transforms.py
+src/project_name/features/validators.py
+src/project_name/inference/__init__.py
+src/project_name/inference/postprocess.py
+src/project_name/inference/predictor.py
+src/project_name/inference/preprocess.py
+src/project_name/models/__init__.py
+src/project_name/models/base.py
+src/project_name/models/factories.py
+src/project_name/models/registry.py
+src/project_name/monitoring/__init__.py
+src/project_name/monitoring/data_quality.py
+src/project_name/monitoring/drift.py
+src/project_name/monitoring/performance.py
+src/project_name/pipelines/__init__.py
+src/project_name/pipelines/batch_inference_pipeline.py
+src/project_name/pipelines/eval_pipeline.py
+src/project_name/pipelines/train_pipeline.py
+src/project_name/training/__init__.py
+src/project_name/training/callbacks.py
+src/project_name/training/losses.py
+src/project_name/training/optimizers.py
+src/project_name/training/trainer.py
+tests/fixtures/.gitkeep
+tests/integration/.gitkeep
+tests/regression/.gitkeep
+tests/smoke/.gitkeep
+tests/unit/.gitkeep
