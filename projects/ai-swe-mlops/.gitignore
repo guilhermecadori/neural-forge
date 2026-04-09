@@ -79,6 +79,7 @@ Thumbs.db
 data/**
 !data/**/
 !data/**/.gitkeep
+!data/**/*.dvc
 .env
 .env.*
 !.env.example

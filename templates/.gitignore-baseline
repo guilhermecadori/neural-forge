@@ -17,11 +17,15 @@
 # and git would stop recursing, so `!data/**/.gitkeep` re-includes would
 # never fire. Using `data/**` ignores every file under data/ at any depth
 # while still letting git walk the tree; `!data/**/` keeps subdirectories
-# traversable, and `!data/**/.gitkeep` tracks the sentinel files that
-# preserve the empty-directory structure across clones.
+# traversable; `!data/**/.gitkeep` tracks the sentinel files that preserve
+# the empty-directory structure across clones; and `!data/**/*.dvc`
+# re-includes DVC pointer files, which MUST be committed — otherwise
+# `dvc add` of any file under `data/` fails with
+# `bad DVC file name '...' is git-ignored`.
 data/**
 !data/**/
 !data/**/.gitkeep
+!data/**/*.dvc
 
 # --- Secrets: never, under any circumstance, commit -----------------------
 .env
