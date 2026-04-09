@@ -1,0 +1,18 @@
+stages:
+  prepare:
+    cmd: python src/churn_prediction/prepare.py
+    deps:
+      - data/raw/churn.csv
+      - src/churn_prediction/prepare.py
+    outs:
+      - data/processed
+  train:
+    cmd: python src/churn_prediction/train.py
+    deps:
+      - data/processed
+      - src/churn_prediction/train.py
+    outs:
+      - models/model.pkl
+    metrics:
+      - metrics.json:
+          cache: false
