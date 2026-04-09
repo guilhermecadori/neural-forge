@@ -1,0 +1,11 @@
+name: neural-forge
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14.2
+  - pip
+  - pip:
+      - pandas==3.0.2
+      - scikit-learn==1.8.0
+      - dvc==3.67.1
+      - pyyaml==6.0.3
