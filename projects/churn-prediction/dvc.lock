@@ -1,0 +1,40 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/churn_prediction/prepare.py
+    deps:
+    - path: data/raw/churn.csv
+      hash: md5
+      md5: 4b07f11f5e0c8d5eae6abca290bcd78b
+      size: 565
+    - path: src/churn_prediction/prepare.py
+      hash: md5
+      md5: 3b4ddeb3d3ec2b26d8d7327dc00db575
+      size: 398
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: cc116dfa52fbd4ebce8ef3b2776f0596.dir
+      size: 624
+      nfiles: 2
+  train:
+    cmd: python src/churn_prediction/train.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: cc116dfa52fbd4ebce8ef3b2776f0596.dir
+      size: 624
+      nfiles: 2
+    - path: src/churn_prediction/train.py
+      hash: md5
+      md5: 52bc796f0dded58354235a676bf5f694
+      size: 734
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 3adc3022e0476203b9a68c3cf346b2ad
+      size: 23
+    - path: models/model.pkl
+      hash: md5
+      md5: 1d2220f0aca4513a1b5d09db6d5f198b
+      size: 85454
