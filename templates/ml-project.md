@@ -18,95 +18,7 @@ Examples:
 
 ml-project/
 
-├─ src/
-
-│  └─ project\_name/
-
-│     ├─ \_\_init\_\_.py
-
-│     ├─ data/
-
-│     │  ├─ datasets.py
-
-│     │  ├─ loaders.py
-
-│     │  ├─ schemas.py
-
-│     │  └─ splits.py
-
-│     ├─ features/
-
-│     │  ├─ builders.py
-
-│     │  ├─ transforms.py
-
-│     │  └─ validators.py
-
-│     ├─ models/
-
-│     │  ├─ registry.py
-
-│     │  ├─ base.py
-
-│     │  └─ factories.py
-
-│     ├─ training/
-
-│     │  ├─ trainer.py
-
-│     │  ├─ losses.py
-
-│     │  ├─ optimizers.py
-
-│     │  └─ callbacks.py
-
-│     ├─ evaluation/
-
-│     │  ├─ metrics.py
-
-│     │  ├─ reports.py
-
-│     │  ├─ plots.py
-
-│     │  └─ validators.py
-
-│     ├─ inference/
-
-│     │  ├─ predictor.py
-
-│     │  ├─ preprocess.py
-
-│     │  └─ postprocess.py
-
-│     ├─ pipelines/
-
-│     │  ├─ train\_pipeline.py
-
-│     │  ├─ eval\_pipeline.py
-
-│     │  └─ batch\_inference\_pipeline.py
-
-│     ├─ monitoring/
-
-│     │  ├─ drift.py
-
-│     │  ├─ data\_quality.py
-
-│     │  └─ performance.py
-
-│     ├─ config/
-
-│     │  ├─ settings.py
-
-│     │  └─ loader.py
-
-│     └─ common/
-
-│        ├─ io.py
-
-│        ├─ logging.py
-
-│        └─ seed.py
+├─ src/                            # flat scripts — add prepare.py, train.py, evaluate.py etc. as needed
 
 ├─ configs/
 
@@ -140,15 +52,7 @@ ml-project/
 
 │  └─ 3.0-error-analysis.ipynb
 
-├─ scripts/
-
-│  ├─ run\_train.py
-
-│  ├─ run\_eval.py
-
-│  ├─ run\_batch\_inference.py
-
-│  └─ export\_artifacts.py
+├─ scripts/                        # one-off utilities — add as needed
 
 ├─ data/                           # DVC-tracked; never committed to git
 
@@ -198,8 +102,8 @@ ml-project/
 
 **What matters most here**
 
-* data/, training/, evaluation/, inference/ are separate on purpose
-* pipelines/ wires the stages together
+* src/ holds flat pipeline scripts (prepare.py, train.py, evaluate.py, etc.)
+* DVC wires the stages together via dvc.yaml
 * configs/ keeps experiments reproducible
 * artifacts/ stores outputs from runs
 * notebooks/ are exploratory only, not core pipeline logic
@@ -235,8 +139,8 @@ ml-project/
 
 **Rules for this template**
 
-* all meaningful logic must live in src/
-* scripts should call code from src/, not reimplement it
+* all meaningful logic must live in src/ as flat scripts (prepare.py, train.py, evaluate.py, etc.)
+* scripts/ is for one-off utilities that call code from src/, not reimplement it
 * config must be explicit and versioned
 * every model experiment should be reproducible
 * evaluation should be first-class, not an afterthought
