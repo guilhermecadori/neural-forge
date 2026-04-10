@@ -10,7 +10,7 @@ y_train = train['Churn']
 X_test = test.drop('Churn', axis=1)
 y_test = test['Churn']
 
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+model = RandomForestClassifier(n_estimators=50, random_state=42)
 model.fit(X_train, y_train)
 
 os.makedirs('models', exist_ok=True)

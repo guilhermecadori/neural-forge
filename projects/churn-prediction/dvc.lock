@@ -27,8 +27,8 @@ stages:
       nfiles: 2
     - path: src/churn_prediction/train.py
       hash: md5
-      md5: 52bc796f0dded58354235a676bf5f694
-      size: 734
+      md5: c92561cf1b9dd9d120624b83d2dfe998
+      size: 733
     outs:
     - path: metrics.json
       hash: md5
@@ -36,5 +36,5 @@ stages:
       size: 23
     - path: models/model.pkl
       hash: md5
-      md5: 1d2220f0aca4513a1b5d09db6d5f198b
-      size: 85454
+      md5: 6f298e6c3de414149491561f85e4aa82
+      size: 44154
