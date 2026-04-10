@@ -1,16 +1,16 @@
 stages:
   prepare:
-    cmd: python src/churn_prediction/prepare.py
+    cmd: python src/prepare.py
     deps:
       - data/raw/churn.csv
-      - src/churn_prediction/prepare.py
+      - src/prepare.py
     outs:
       - data/processed
   train:
-    cmd: python src/churn_prediction/train.py
+    cmd: python src/train.py
     deps:
       - data/processed
-      - src/churn_prediction/train.py
+      - src/train.py
     outs:
       - models/model.pkl
     metrics:
