@@ -1,72 +1,62 @@
-# <Project Name>
-
-> **Template README for Git + DVC ML projects.**
-> Copy this file into new projects and replace every `<...>` placeholder.
-> All five sections below are **mandatory** — do not remove any of them.
+# churn-prediction
 
 ---
 
 ## 1. Problem and Business Metric
 
-**What the model solves:** <describe the problem in 1–3 sentences, in business vocabulary, not model vocabulary>.
+**What the model solves:** predicts whether a bank customer will churn, enabling proactive retention campaigns that reduce revenue loss from attrition.
 
-**Business metric:** <e.g., churn reduction of X%, conversion uplift of Y bps, estimated savings of $Z/month>.
+**Business metric:** churn reduction rate — percentage of at-risk customers retained through targeted intervention.
 
-**Technical metric used as a proxy:** <e.g., ROC-AUC, F1, MAE> — justify why it reflects the business metric.
+**Technical metric used as a proxy:** accuracy (classification correctness on the held-out test set). Accuracy is a reasonable starting proxy given balanced-class assumptions; future iterations may switch to F1 or ROC-AUC for imbalanced scenarios.
 
 ---
 
 ## 2. Architecture
 
-Data flow and pipeline stages:
+Data flow and pipeline stages (orchestrated by `dvc.yaml`):
 
 ```
-Ingestion  →  Processing  →  Features  →  Training  →  Evaluation  →  Inference
-  (raw)       (processed)    (final)      (models)     (reports)      (predictor)
+Ingestion  →  Prepare  →  Train  →  Evaluate
+  (raw)      (processed)  (model)   (metrics)
 ```
 
-- **Ingestion** — `src/<project>/data/` loads raw sources into `data/raw/` (immutable, DVC-tracked).
-- **Processing** — deterministically transforms `raw/` → `processed/`.
-- **Features** — builds `data/final/` (train/val/test splits) from `processed/`.
-- **Training** — `src/<project>/training/` produces artifacts in `models/` (DVC-tracked).
-- **Evaluation** — `src/<project>/evaluation/` generates metrics and reports in `artifacts/reports/`.
-- **Inference** — `src/<project>/inference/` packages the model for batch or online prediction.
+- **Ingestion** — raw churn dataset in `data/raw/churn.csv` (DVC-tracked).
+- **Prepare** — `src/prepare.py` fills missing values (median imputation) and splits into train/test sets → `data/processed/`.
+- **Train** — `src/train.py` fits a `RandomForestClassifier` (n_estimators=50), saves `models/model.pkl`, and writes `metrics.json`.
 
-Orchestration via `dvc.yaml` (reproducible) and/or `src/<project>/pipelines/`.
+Reproducible via `dvc repro`.
 
 ---
 
 ## 3. Prerequisites
 
-- **Python** <version, e.g., 3.11+>
+- **Python** 3.11+
 - **Git**
-- **DVC** <version, e.g., 3.x>
-- <other system dependencies, e.g., Docker, CUDA, make>
+- **DVC** 3.x
+- **scikit-learn**, **pandas** (installed via requirements or pyproject.toml)
 
 ---
 
 ## 4. Installation and Setup
 
-Explicit, reproducible instructions — do not skip any step:
-
 ```bash
 # 1. Clone the repository
-git clone https://github.com/<your-user>/<project>.git
-cd <project>
+git clone https://github.com/guilhermecadori/neural-forge.git
+cd neural-forge/projects/churn-prediction
 
 # 2. Install dependencies
-pip install -r requirements.txt
-# or: pip install -e ".[dev]"
+pip install -e ".[dev]"
 
 # 3. Pull DVC-versioned data
 #    ESSENTIAL: without this step the project has no data.
 dvc pull
 
-# 4. Reproduce the full pipeline (raw → processed → final → train → evaluate)
+# 4. Reproduce the full pipeline (prepare → train)
 dvc repro
 ```
 
-> **Why `dvc pull` matters:** without it, `data/` and `models/` stay empty — the git repo only contains the `.dvc` pointer files. Including this step explicitly signals maturity in professional data management.
+> **Why `dvc pull` matters:** without it, `data/` and `models/` stay empty — the git repo only contains the `.dvc` pointer files.
 
 ---
 
@@ -74,12 +64,8 @@ dvc repro
 
 Current model performance on the test set:
 
-| Metric | Value | Baseline | Δ |
+| Metric | Value | Baseline | Delta |
 |---|---|---|---|
-| <metric 1, e.g., ROC-AUC> | <0.00> | <0.00> | <+0.00> |
-| <metric 2, e.g., F1>      | <0.00> | <0.00> | <+0.00> |
-| <business metric>         | <0.00> | <0.00> | <+0.00> |
+| Accuracy | 0.667 | N/A | N/A |
 
-<Optional: figure in `artifacts/figures/` — ROC curve, confusion matrix, calibration plot, etc.>
-
-Full report: [`artifacts/reports/<latest>.md`](artifacts/reports/)
+Model: `RandomForestClassifier(n_estimators=50, random_state=42)`.
