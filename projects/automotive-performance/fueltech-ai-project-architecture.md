@@ -2,7 +2,7 @@
 
 **Project:** AI-powered diagnostic and tuning assistant for programmable ECU ecosystems  
 **Target Roles:** Especialista de IA — Sistemas Conversacionais | Especialista de IA — Análise de Dados & Modelos Especializados  
-**Company:** FuelTech  
+**Company:**   
 **Author:** Guilherme  
 **Status:** Planning
 
