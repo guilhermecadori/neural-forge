@@ -72,9 +72,7 @@ kubectl get svc
 
 | Metric | Target | Current | Status |
 |---|---|---|---|
-| Deployment lead time | < 5 min | TBD | Pending |
-| p95 inference latency | < 200 ms | TBD | Pending |
-| Service availability | 99.9% | TBD | Pending |
-| Pod cold-start time | < 30 s | TBD | Pending |
-
-Infrastructure dashboards: `docs/runbooks/` (to be added).
+| Deployment lead time | < 5 min | N/A | N/A |
+| p95 inference latency | < 200 ms | N/A | N/A |
+| Service availability | 99.9% | N/A | N/A |
+| Pod cold-start time | < 30 s | N/A | N/A |
