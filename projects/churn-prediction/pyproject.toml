@@ -9,7 +9,7 @@ description = "Customer churn prediction pipeline"
 requires-python = ">=3.10"
 
 dependencies = [
-    "pandas>=2.0.0",
+    "pandas>=2.0.0,<3.0.0",
     "scikit-learn>=1.4.0",
     "dvc>=3.48.0",
     "pyyaml>=6.0.1",
