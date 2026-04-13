@@ -30,6 +30,8 @@ dev = [
     "pytest-cov>=5.0.0",
     "ruff>=0.9.0",
     "mypy>=1.14.0",
+    "types-requests>=2.31.0",
+    "types-PyYAML>=6.0.0",
 ]
 
 [project.scripts]
@@ -71,12 +73,15 @@ select = [
 ]
 ignore = [
     "S101",    # assert allowed in tests
+    "S301",    # pickle used on our own model artifacts
     "TRY003",  # long exception messages are fine
     "PLR0913", # too many arguments — common in ML code
+    "N806",    # X_train, X_test are ML convention
+    "N803",    # same for function args (X_train: pd.DataFrame)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "ARG001", "ARG002", "PLR2004"]
+"tests/**/*.py" = ["S101", "ARG001", "ARG002", "PLR2004", "PLC0415", "RUF005", "RUF043", "PTH123"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]

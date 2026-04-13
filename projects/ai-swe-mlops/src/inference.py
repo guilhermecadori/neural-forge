@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import sys
+from typing import Any
 
 import requests
 
@@ -32,9 +33,9 @@ SAMPLE_BATCH = {
     "dataframe_split": {
         "columns": ["sepal_length", "sepal_width", "petal_length", "petal_width"],
         "data": [
-            [5.1, 3.5, 1.4, 0.2],   # setosa
-            [6.0, 2.9, 4.5, 1.5],   # versicolor
-            [6.9, 3.1, 5.4, 2.1],   # virginica
+            [5.1, 3.5, 1.4, 0.2],  # setosa
+            [6.0, 2.9, 4.5, 1.5],  # versicolor
+            [6.9, 3.1, 5.4, 2.1],  # virginica
         ],
     }
 }
@@ -46,7 +47,7 @@ SAMPLE_BATCH = {
 
 
 def predict(
-    payload: dict,
+    payload: dict[str, Any],
     host: str = DEFAULT_HOST,
     port: int = DEFAULT_PORT,
 ) -> list[int]:
@@ -77,7 +78,7 @@ def predict(
     return predictions
 
 
-def format_results(predictions: list[int], payload: dict) -> str:
+def format_results(predictions: list[int], payload: dict[str, Any]) -> str:
     """Format predictions alongside the input samples for display.
 
     Args:
@@ -92,8 +93,8 @@ def format_results(predictions: list[int], payload: dict) -> str:
 
     lines = [f"{'Input':<50} {'Class':>5}  Label"]
     lines.append("-" * 70)
-    for row, pred in zip(rows, predictions):
-        features = ", ".join(f"{c}={v}" for c, v in zip(columns, row))
+    for row, pred in zip(rows, predictions, strict=True):
+        features = ", ".join(f"{c}={v}" for c, v in zip(columns, row, strict=True))
         label = CLASS_NAMES.get(pred, "unknown")
         lines.append(f"{features:<50} {pred:>5}  {label}")
     return "\n".join(lines)
@@ -111,8 +112,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run inference against a locally served MLflow model."
     )
-    parser.add_argument("--host", default=DEFAULT_HOST, help=f"Server host (default: {DEFAULT_HOST})")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Server port (default: {DEFAULT_PORT})")
+    parser.add_argument(
+        "--host", default=DEFAULT_HOST, help=f"Server host (default: {DEFAULT_HOST})"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help=f"Server port (default: {DEFAULT_PORT})",
+    )
     parser.add_argument(
         "--mode",
         choices=["single", "batch", "custom"],
@@ -124,7 +132,7 @@ def main() -> None:
         type=str,
         default=None,
         help=(
-            'Custom input as JSON dataframe_split, e.g.: '
+            "Custom input as JSON dataframe_split, e.g.: "
             '\'{"dataframe_split": {"columns": [...], "data": [[...]]}}\''
         ),
     )
@@ -142,13 +150,15 @@ def main() -> None:
 
     try:
         predictions = predict(payload, host=args.host, port=args.port)
-        print(format_results(predictions, payload))
+        logger.info("\n%s", format_results(predictions, payload))
     except requests.ConnectionError:
         logger.error(
             "Could not connect to %s:%d. Is the MLflow server running?\n"
             "Start it with:\n"
-            "  mlflow models serve -m \"models:/OpClassifier/6\" --port %d --no-conda",
-            args.host, args.port, args.port,
+            '  mlflow models serve -m "models:/OpClassifier/6" --port %d --no-conda',
+            args.host,
+            args.port,
+            args.port,
         )
         sys.exit(1)
     except requests.HTTPError as exc:

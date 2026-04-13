@@ -8,7 +8,6 @@ import pytest
 
 from src.evaluate import compute_metrics
 
-
 # ---------------------------------------------------------------------------
 # Tests: compute_metrics
 # ---------------------------------------------------------------------------
@@ -62,4 +61,6 @@ def test_compute_metrics_returns_floats():
     y = pd.Series([0, 1, 2])
     metrics = compute_metrics(y, y)
     for name, value in metrics.items():
-        assert isinstance(value, float), f"Metric '{name}' is not a float: {type(value)}"
+        assert isinstance(value, float), (
+            f"Metric '{name}' is not a float: {type(value)}"
+        )

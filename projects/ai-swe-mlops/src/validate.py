@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 import pandera.pandas as pa
-from pandera.pandas import Column, DataFrameSchema, Check
+from pandera.pandas import Check, Column, DataFrameSchema
 from sklearn.datasets import load_iris
 
 logger = logging.getLogger(__name__)
@@ -23,8 +23,8 @@ TARGET_COL = "target"
 # Pandera schema
 # ---------------------------------------------------------------------------
 # Ranges are slightly wider than the Iris dataset min/max to accommodate
-# realistic new data: sepal_length 4.3–7.9, sepal_width 2.0–4.4,
-# petal_length 1.0–6.9, petal_width 0.1–2.5.
+# realistic new data: sepal_length 4.3-7.9, sepal_width 2.0-4.4,
+# petal_length 1.0-6.9, petal_width 0.1-2.5.
 # ---------------------------------------------------------------------------
 
 IRIS_SCHEMA = DataFrameSchema(
@@ -72,8 +72,8 @@ IRIS_SCHEMA = DataFrameSchema(
             description="Class label: 0=setosa, 1=versicolor, 2=virginica.",
         ),
     },
-    strict=True,        # reject any column not declared above
-    coerce=False,       # do not silently cast — types must already be correct
+    strict=True,  # reject any column not declared above
+    coerce=False,  # do not silently cast — types must already be correct
     name="IrisSchema",
 )
 
@@ -116,7 +116,9 @@ def validate(df: pd.DataFrame) -> pd.DataFrame:
     """
     logger.info("Running schema validation...")
     validated = IRIS_SCHEMA.validate(df, lazy=True)
-    logger.info("Validation passed: %d rows, %d columns", len(validated), len(validated.columns))
+    logger.info(
+        "Validation passed: %d rows, %d columns", len(validated), len(validated.columns)
+    )
     return validated
 
 

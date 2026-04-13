@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import patch
-
 import numpy as np
 import pandas as pd
 import pytest
 
 from src.preprocess import FEATURE_NAMES, TARGET_COL, normalize, split
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -25,13 +21,13 @@ def iris_df() -> pd.DataFrame:
     df = pd.DataFrame(
         {
             "sepal_length": rng.uniform(4.3, 7.9, n),
-            "sepal_width":  rng.uniform(2.0, 4.4, n),
+            "sepal_width": rng.uniform(2.0, 4.4, n),
             "petal_length": rng.uniform(1.0, 6.9, n),
-            "petal_width":  rng.uniform(0.1, 2.5, n),
-            "target":       np.tile([0, 1, 2], n // 3),
+            "petal_width": rng.uniform(0.1, 2.5, n),
+            "target": np.tile([0, 1, 2], n // 3),
         }
     )
-    return df
+    return df  # noqa: RET504
 
 
 # ---------------------------------------------------------------------------
@@ -47,7 +43,7 @@ def test_split_row_counts(iris_df):
 
 def test_split_test_size_ratio(iris_df):
     """Test split must be approximately 20% of the data."""
-    train_df, test_df = split(iris_df, test_size=0.2, random_state=42)
+    _train_df, test_df = split(iris_df, test_size=0.2, random_state=42)
     ratio = len(test_df) / len(iris_df)
     assert abs(ratio - 0.2) < 0.05
 
@@ -105,7 +101,7 @@ def test_normalize_train_std_near_one(iris_df):
 def test_normalize_preserves_target(iris_df):
     """Normalisation must not alter the target column."""
     train_df, test_df = split(iris_df, test_size=0.2, random_state=42)
-    train_s, test_s = normalize(train_df, test_df, FEATURE_NAMES)
+    train_s, _test_s = normalize(train_df, test_df, FEATURE_NAMES)
     pd.testing.assert_series_equal(
         train_s[TARGET_COL].reset_index(drop=True),
         train_df[TARGET_COL].reset_index(drop=True),
@@ -129,6 +125,7 @@ def test_normalize_no_data_leakage(iris_df):
 def test_load_iris_raises_if_missing(tmp_path):
     """FileNotFoundError must be raised when raw CSV does not exist."""
     from src.preprocess import load_iris_dataframe
+
     missing = tmp_path / "does_not_exist.csv"
     with pytest.raises(FileNotFoundError, match="Run validate.py first"):
         load_iris_dataframe(raw_file=missing)
@@ -137,6 +134,7 @@ def test_load_iris_raises_if_missing(tmp_path):
 def test_load_iris_returns_correct_columns(tmp_path):
     """Loaded DataFrame must contain all feature columns and target."""
     from src.preprocess import load_iris_dataframe
+
     # Write a minimal valid CSV
     df = pd.DataFrame(
         [[5.1, 3.5, 1.4, 0.2, 0]],

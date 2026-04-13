@@ -7,6 +7,7 @@ import json
 import logging
 import pickle
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import mlflow
@@ -33,7 +34,7 @@ TARGET_COL = "target"
 CLASS_NAMES = ["setosa", "versicolor", "virginica"]
 
 
-def load_model(path: Path = MODEL_PATH):
+def load_model(path: Path = MODEL_PATH) -> Any:
     """Load a pickled scikit-learn model from disk.
 
     Args:
@@ -47,13 +48,15 @@ def load_model(path: Path = MODEL_PATH):
     """
     if not path.exists():
         raise FileNotFoundError(f"Model not found: {path}. Run train.py first.")
-    with open(path, "rb") as f:
+    with path.open("rb") as f:
         model = pickle.load(f)
     logger.info("Model loaded from %s", path)
     return model
 
 
-def load_test_data(processed_dir: Path = PROCESSED_DIR) -> tuple[pd.DataFrame, pd.Series]:
+def load_test_data(
+    processed_dir: Path = PROCESSED_DIR,
+) -> tuple[pd.DataFrame, pd.Series]:
     """Load test split from data/processed/test.csv.
 
     Args:
@@ -67,11 +70,15 @@ def load_test_data(processed_dir: Path = PROCESSED_DIR) -> tuple[pd.DataFrame, p
     """
     test_path = processed_dir / "test.csv"
     if not test_path.exists():
-        raise FileNotFoundError(f"Test data not found: {test_path}. Run preprocess.py first.")
+        raise FileNotFoundError(
+            f"Test data not found: {test_path}. Run preprocess.py first."
+        )
     df = pd.read_csv(test_path)
     X_test = df.drop(columns=[TARGET_COL])
     y_test = df[TARGET_COL]
-    logger.info("Test data loaded: %d samples, %d features", len(X_test), X_test.shape[1])
+    logger.info(
+        "Test data loaded: %d samples, %d features", len(X_test), X_test.shape[1]
+    )
     return X_test, y_test
 
 
@@ -90,8 +97,12 @@ def compute_metrics(
     """
     return {
         "accuracy": round(accuracy_score(y_true, y_pred), 6),
-        "precision": round(precision_score(y_true, y_pred, average="weighted", zero_division=0), 6),
-        "recall": round(recall_score(y_true, y_pred, average="weighted", zero_division=0), 6),
+        "precision": round(
+            precision_score(y_true, y_pred, average="weighted", zero_division=0), 6
+        ),
+        "recall": round(
+            recall_score(y_true, y_pred, average="weighted", zero_division=0), 6
+        ),
         "f1": round(f1_score(y_true, y_pred, average="weighted", zero_division=0), 6),
     }
 
@@ -104,7 +115,7 @@ def save_metrics(metrics: dict[str, float], path: Path = METRICS_FILE) -> None:
         path: Destination file path.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
+    with path.open("w") as f:
         json.dump(metrics, f, indent=2)
     logger.info("Metrics saved to %s", path)
 
@@ -127,7 +138,7 @@ def save_confusion_matrix(
     fig, ax = plt.subplots(figsize=(6, 5))
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
     disp.plot(ax=ax, colorbar=True)
-    ax.set_title("Confusion Matrix — Iris (test set)")
+    ax.set_title("Confusion Matrix - Iris (test set)")
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=120)
@@ -160,7 +171,7 @@ def log_to_mlflow(
         run_id = run.info.run_id
 
     logger.info("MLflow evaluation run logged: %s", run_id)
-    return run_id
+    return str(run_id)
 
 
 def run(
@@ -203,7 +214,9 @@ def main() -> None:
     """CLI entry point."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
-    parser = argparse.ArgumentParser(description="Evaluate trained model and log results.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate trained model and log results."
+    )
     parser.add_argument(
         "--model",
         type=Path,
