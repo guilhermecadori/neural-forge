@@ -1,0 +1,107 @@
+name: python-quality
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "projects/**/*.py"
+      - "projects/**/pyproject.toml"
+      - "projects/**/requirements*.txt"
+      - ".github/workflows/python-quality.yml"
+  pull_request:
+    paths:
+      - "projects/**/*.py"
+      - "projects/**/pyproject.toml"
+      - "projects/**/requirements*.txt"
+      - ".github/workflows/python-quality.yml"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has-projects: ${{ steps.set-matrix.outputs.has-projects }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: set-matrix
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE=${{ github.event.pull_request.base.sha }}
+          else
+            BASE=HEAD~1
+          fi
+
+          # Get unique project names that changed and contain at least one .py file
+          projects=$(git diff --name-only "$BASE"..HEAD \
+            | grep '^projects/' \
+            | cut -d/ -f2 \
+            | sort -u \
+            | while read -r proj; do
+                if find "projects/$proj" -name '*.py' -print -quit 2>/dev/null | grep -q .; then
+                  echo "$proj"
+                fi
+              done)
+
+          if [ -z "$projects" ]; then
+            echo "matrix={\"project\":[]}" >> "$GITHUB_OUTPUT"
+            echo "has-projects=false" >> "$GITHUB_OUTPUT"
+          else
+            json=$(echo "$projects" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "matrix={\"project\":$json}" >> "$GITHUB_OUTPUT"
+            echo "has-projects=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  quality:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has-projects == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: projects/${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install quality tools
+        run: pip install ruff mypy pytest pytest-cov
+
+      - name: Install project dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          if [ -f pyproject.toml ] && grep -q '\[project.optional-dependencies\]' pyproject.toml; then
+            pip install -e ".[dev]" 2>/dev/null || pip install -e . 2>/dev/null || true
+          fi
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Mypy type check
+        run: |
+          if find src -name '*.py' -not -name '__init__.py' -print -quit 2>/dev/null | grep -q .; then
+            mypy src/
+          else
+            echo "No src/ Python files to type-check, skipping mypy"
+          fi
+
+      - name: Pytest with coverage
+        run: |
+          if find tests -name 'test_*.py' -print -quit 2>/dev/null | grep -q .; then
+            pytest
+          else
+            echo "No test files found, skipping pytest"
+          fi
