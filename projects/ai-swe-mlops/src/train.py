@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import pickle
 from pathlib import Path
-from typing import Union
+from typing import Any, TypeAlias
 
 import hydra
 import matplotlib.pyplot as plt
@@ -13,7 +13,6 @@ import mlflow
 import mlflow.sklearn
 import mlflow.xgboost
 import pandas as pd
-from hydra.core.hydra_config import HydraConfig
 from mlflow.models.signature import infer_signature
 from omegaconf import DictConfig, OmegaConf
 from sklearn.ensemble import RandomForestClassifier
@@ -37,10 +36,12 @@ TARGET_COL = "target"
 CLASS_NAMES = ["setosa", "versicolor", "virginica"]
 FEATURE_NAMES = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
 
-Model = Union[RandomForestClassifier, XGBClassifier]
+Model: TypeAlias = RandomForestClassifier | XGBClassifier
 
 
-def load_train_data(processed_dir: Path = PROCESSED_DIR) -> tuple[pd.DataFrame, pd.Series]:
+def load_train_data(
+    processed_dir: Path = PROCESSED_DIR,
+) -> tuple[pd.DataFrame, pd.Series]:
     """Load training split produced by preprocess.py.
 
     Args:
@@ -54,15 +55,19 @@ def load_train_data(processed_dir: Path = PROCESSED_DIR) -> tuple[pd.DataFrame, 
     """
     train_path = processed_dir / "train.csv"
     if not train_path.exists():
-        raise FileNotFoundError(f"Training data not found: {train_path}. Run preprocess.py first.")
+        raise FileNotFoundError(
+            f"Training data not found: {train_path}. Run preprocess.py first."
+        )
     df = pd.read_csv(train_path)
     X_train = df.drop(columns=[TARGET_COL])
     y_train = df[TARGET_COL]
-    logger.info("Training data loaded: %d samples, %d features", len(X_train), X_train.shape[1])
+    logger.info(
+        "Training data loaded: %d samples, %d features", len(X_train), X_train.shape[1]
+    )
     return X_train, y_train
 
 
-def build_model(model_type: str, params: dict) -> Model:
+def build_model(model_type: str, params: dict[str, Any]) -> Model:
     """Instantiate the requested model with given parameters.
 
     Args:
@@ -76,20 +81,35 @@ def build_model(model_type: str, params: dict) -> Model:
         ValueError: If model_type is not recognised.
     """
     if model_type == "random_forest":
-        rf_params = {k: v for k, v in params.items() if k in ("n_estimators", "max_depth", "random_state")}
+        rf_params = {
+            k: v
+            for k, v in params.items()
+            if k in ("n_estimators", "max_depth", "random_state")
+        }
         return RandomForestClassifier(**rf_params)
     if model_type == "xgboost":
-        xgb_params = {k: v for k, v in params.items() if k in (
-            "n_estimators", "max_depth", "learning_rate", "subsample",
-            "colsample_bytree", "random_state",
-        )}
+        xgb_params = {
+            k: v
+            for k, v in params.items()
+            if k
+            in (
+                "n_estimators",
+                "max_depth",
+                "learning_rate",
+                "subsample",
+                "colsample_bytree",
+                "random_state",
+            )
+        }
         return XGBClassifier(
             eval_metric="mlogloss",
             use_label_encoder=False,
             verbosity=0,
             **xgb_params,
         )
-    raise ValueError(f"Unknown model_type '{model_type}'. Choose 'random_forest' or 'xgboost'.")
+    raise ValueError(
+        f"Unknown model_type '{model_type}'. Choose 'random_forest' or 'xgboost'."
+    )
 
 
 def compute_metrics(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]:
@@ -104,7 +124,9 @@ def compute_metrics(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]:
     """
     return {
         "accuracy": accuracy_score(y_true, y_pred),
-        "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0),
+        "precision": precision_score(
+            y_true, y_pred, average="weighted", zero_division=0
+        ),
         "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0),
         "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0),
     }
@@ -128,7 +150,7 @@ def save_confusion_matrix(
     fig, ax = plt.subplots(figsize=(6, 5))
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
     disp.plot(ax=ax, colorbar=True)
-    ax.set_title("Confusion Matrix — Iris (train set)")
+    ax.set_title("Confusion Matrix - Iris (train set)")
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=120)
@@ -144,7 +166,7 @@ def save_model_locally(model: Model, path: Path) -> None:
         path: Destination .pkl file path.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "wb") as f:
+    with path.open("wb") as f:
         pickle.dump(model, f)
     logger.info("Model saved locally to %s", path)
 
@@ -195,7 +217,9 @@ def train(
         colsample_bytree: Feature subsampling ratio per tree (XGBoost only).
     """
     X_train, y_train = load_train_data()
-    logger.info("Dataset: %d training samples | model_type: %s", len(X_train), model_type)
+    logger.info(
+        "Dataset: %d training samples | model_type: %s", len(X_train), model_type
+    )
 
     mlflow.set_experiment(EXPERIMENT_NAME)
 
@@ -203,7 +227,7 @@ def train(
         run_id = run.info.run_id
         logger.info("MLflow run started: %s", run_id)
 
-        all_params: dict = {
+        all_params: dict[str, Any] = {
             "model_type": model_type,
             "n_estimators": n_estimators,
             "max_depth": max_depth,
@@ -243,6 +267,7 @@ def train(
 # so Hydra reads params.yaml — the same file DVC tracks.
 # ---------------------------------------------------------------------------
 
+
 @hydra.main(config_path="..", config_name="params", version_base=None)
 def main(cfg: DictConfig) -> None:
     """Hydra entry point — reads params.yaml and accepts CLI overrides.
@@ -280,7 +305,7 @@ def main(cfg: DictConfig) -> None:
             n_estimators=m.n_estimators,
             max_depth=m.max_depth,
             random_state=m.random_state,
-            learning_rate=1.0,    # unused for RF
+            learning_rate=1.0,  # unused for RF
             subsample=1.0,
             colsample_bytree=1.0,
         )

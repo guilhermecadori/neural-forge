@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -21,7 +22,7 @@ FEATURE_NAMES = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
 TARGET_COL = "target"
 
 
-def load_params(path: Path = PARAMS_FILE) -> dict:
+def load_params(path: Path = PARAMS_FILE) -> dict[str, Any]:
     """Read pipeline parameters from params.yaml.
 
     Args:
@@ -30,8 +31,8 @@ def load_params(path: Path = PARAMS_FILE) -> dict:
     Returns:
         Parsed parameters dictionary.
     """
-    with open(path) as f:
-        return yaml.safe_load(f)
+    with path.open() as f:
+        return yaml.safe_load(f)  # type: ignore[no-any-return]
 
 
 def load_iris_dataframe(raw_file: Path = RAW_FILE) -> pd.DataFrame:
@@ -51,7 +52,9 @@ def load_iris_dataframe(raw_file: Path = RAW_FILE) -> pd.DataFrame:
             f"Raw data not found: {raw_file}. Run validate.py first."
         )
     df = pd.read_csv(raw_file)
-    logger.info("Loaded Iris dataset: %d samples, %d features", len(df), len(FEATURE_NAMES))
+    logger.info(
+        "Loaded Iris dataset: %d samples, %d features", len(df), len(FEATURE_NAMES)
+    )
     return df
 
 
@@ -177,7 +180,9 @@ def main() -> None:
     """CLI entry point."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
-    parser = argparse.ArgumentParser(description="Preprocess Iris dataset for DVC pipeline.")
+    parser = argparse.ArgumentParser(
+        description="Preprocess Iris dataset for DVC pipeline."
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,

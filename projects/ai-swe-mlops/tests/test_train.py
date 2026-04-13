@@ -59,6 +59,7 @@ def trained_model():
 def iris_sample() -> tuple[pd.DataFrame, pd.Series]:
     """Small in-memory Iris-like dataset for fast unit tests (no I/O needed)."""
     from sklearn.datasets import load_iris
+
     iris = load_iris()
     X = pd.DataFrame(iris.data, columns=FEATURE_NAMES)
     y = pd.Series(iris.target, name=TARGET_COL)
@@ -76,7 +77,7 @@ def test_model_accuracy_threshold(trained_model, test_data):
     y_pred = trained_model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     assert accuracy > ACCURACY_THRESHOLD, (
-        f"Accuracy {accuracy:.4f} is below the required threshold of {ACCURACY_THRESHOLD}."
+        f"Accuracy {accuracy:.4f} below threshold {ACCURACY_THRESHOLD}."
     )
 
 
@@ -92,7 +93,9 @@ def test_model_accuracy_threshold_rf(iris_sample):
 def test_model_accuracy_threshold_xgb(iris_sample):
     """XGBoost trained on full Iris must exceed accuracy threshold."""
     X, y = iris_sample
-    model = build_model("xgboost", {"n_estimators": 50, "max_depth": 3, "random_state": 42})
+    model = build_model(
+        "xgboost", {"n_estimators": 50, "max_depth": 3, "random_state": 42}
+    )
     model.fit(X, y)
     accuracy = accuracy_score(y, model.predict(X))
     assert accuracy > ACCURACY_THRESHOLD
@@ -124,7 +127,9 @@ def test_model_output_shape_rf(iris_sample):
 def test_model_output_shape_xgb(iris_sample):
     """XGBoost predictions shape matches input row count."""
     X, y = iris_sample
-    model = build_model("xgboost", {"n_estimators": 10, "max_depth": 3, "random_state": 0})
+    model = build_model(
+        "xgboost", {"n_estimators": 10, "max_depth": 3, "random_state": 0}
+    )
     model.fit(X, y)
     preds = model.predict(X)
     assert preds.shape == (len(X),)
@@ -189,7 +194,9 @@ def test_build_random_forest_returns_correct_type():
 
 
 def test_build_xgboost_returns_correct_type():
-    model = build_model("xgboost", {"n_estimators": 10, "max_depth": 3, "random_state": 0})
+    model = build_model(
+        "xgboost", {"n_estimators": 10, "max_depth": 3, "random_state": 0}
+    )
     assert isinstance(model, XGBClassifier)
 
 

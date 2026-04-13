@@ -7,12 +7,12 @@ name = "ai-swe-mlops-project"
 version = "0.1.0"
 description = "MLOps pipeline for classification tasks with experiment tracking and reproducibility"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 
 dependencies = [
     "scikit-learn>=1.4.0",
-    "pandas>=2.2.0",
+    "pandas>=2.2.0,<3.0.0",
     "numpy>=1.26.0",
     "mlflow>=2.11.0",
     "dvc>=3.48.0",
@@ -28,8 +28,10 @@ dependencies = [
 dev = [
     "pytest>=8.1.0",
     "pytest-cov>=5.0.0",
-    "ruff>=0.3.0",
-    "mypy>=1.9.0",
+    "ruff>=0.9.0",
+    "mypy>=1.14.0",
+    "types-requests>=2.31.0",
+    "types-PyYAML>=6.0.0",
 ]
 
 [project.scripts]
@@ -40,18 +42,65 @@ evaluate = "src.evaluate:main"
 where = ["."]
 include = ["src*"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "--cov=src --cov-report=term-missing"
+# --- Ruff (gold standard) ---------------------------------------------------
 
 [tool.ruff]
 line-length = 88
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W"]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "RUF",    # ruff-specific
+    "S",      # flake8-bandit (security)
+    "A",      # flake8-builtins
+    "C4",     # flake8-comprehensions
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "RET",    # flake8-return
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    "PL",     # pylint subset
+    "PERF",   # perflint
+]
+ignore = [
+    "S101",    # assert allowed in tests
+    "S301",    # pickle used on our own model artifacts
+    "TRY003",  # long exception messages are fine
+    "PLR0913", # too many arguments — common in ML code
+    "N806",    # X_train, X_test are ML convention
+    "N803",    # same for function args (X_train: pd.DataFrame)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ARG001", "ARG002", "PLR2004", "PLC0415", "RUF005", "RUF043", "PTH123"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+# --- Mypy (strict) -----------------------------------------------------------
 
 [tool.mypy]
 python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
 ignore_missing_imports = true
-strict = false
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+# --- Pytest -------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=30"
