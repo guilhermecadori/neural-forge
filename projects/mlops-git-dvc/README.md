@@ -49,11 +49,14 @@ Guiding rules (from `1-RULES.md`):
 git clone https://github.com/guilhermecadori/neural-forge.git
 cd neural-forge/projects/mlops-git-dvc
 
-# 2. Pull DVC-versioned data (if any stages are tracked)
+# 2. Install the project and its dependencies
+pip install -e .
+
+# 3. Pull DVC-versioned data (if any stages are tracked)
 #    ESSENTIAL: without this step DVC-tracked files stay as pointer stubs.
 dvc pull
 
-# 3. Reproduce the pipeline
+# 4. Reproduce the pipeline
 dvc repro
 ```
 
