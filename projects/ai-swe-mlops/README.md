@@ -78,9 +78,9 @@ Current model performance on the test set:
 
 | Metric | Value | Baseline | Δ |
 |---|---|---|---|
-| Accuracy | _TBD_ | _TBD_ | _TBD_ |
-| F1       | _TBD_ | _TBD_ | _TBD_ |
-| ROC-AUC  | _TBD_ | _TBD_ | _TBD_ |
+| Accuracy | N/A | N/A | N/A |
+| F1       | N/A | N/A | N/A |
+| ROC-AUC  | N/A | N/A | N/A |
 
 Per-run metrics are available in the MLflow UI (`mlflow ui`) and exported reports live in `reports/`.
 
