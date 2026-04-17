@@ -14,20 +14,20 @@
 
 ## 2. Architecture
 
-Project layout (numbered directories enforce a canonical ordering):
+Project layout:
 
 ```
-1-src/project-1/   →  core logic (data, features, models, training, inference, evaluation, api)
-2-tests/            →  unit, integration, smoke, regression
-3-configs/          →  versioned hyperparameters and pipeline settings
-4-notebooks/        →  exploration and inspection (not production logic)
-5-scripts/          →  thin CLI entry points
-6-docs/             →  design docs and ADRs
+src/                →  core logic (data, features, models, training, inference, evaluation, api)
+tests/              →  unit, integration, smoke, regression
+configs/            →  versioned hyperparameters and pipeline settings
+notebooks/          →  exploration and inspection (not production logic)
+scripts/            →  thin CLI entry points
+docs/               →  design docs and ADRs
 ```
 
-Guiding rules (from `1-RULES.md`):
+Guiding rules (from `RULES.md`):
 
-- Core logic goes in `1-src/`, not notebooks.
+- Core logic goes in `src/`, not notebooks.
 - Notebooks are for exploration, inspection, and explanation.
 - Scripts are thin entry points, not where real logic lives.
 - Configs are explicit and versioned.
