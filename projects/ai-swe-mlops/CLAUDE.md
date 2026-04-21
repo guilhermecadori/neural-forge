@@ -1,22 +1,22 @@
-# Comandos de Build
-- python -m pytest tests/ -v: Rodar testes
-- python -m pip install -e .: Instalar pacote em modo editável
-- dvc repro: Reproduzir pipeline completo
-- mlflow ui --port 5000: Iniciar interface MLflow
+# Build Commands
+- python -m pytest tests/ -v: Run tests
+- python -m pip install -e .: Install package in editable mode
+- dvc repro: Reproduce the full pipeline
+- mlflow ui --port 5000: Start the MLflow UI
 
-# Estilo de Código
-- Use type hints em todas as funções
-- Siga convenções PEP 8
-- Use dataclasses ou Pydantic para modelos de dados
-- Docstrings no formato Google
+# Code Style
+- Use type hints on all functions
+- Follow PEP 8 conventions
+- Use dataclasses or Pydantic for data models
+- Docstrings in Google format
 
-# Arquitetura
-- MLflow para tracking de experimentos
-- DVC para versionamento de dados e pipelines
-- pytest para testes unitários
-- Hydra ou YAML para configuração
+# Architecture
+- MLflow for experiment tracking
+- DVC for data and pipeline versioning
+- pytest for unit tests
+- Hydra or YAML for configuration
 
 # Workflow
-- Sempre rode testes após mudanças no código
-- Faça commits frequentes com mensagens descritivas
-- Use dvc add para novos datasets
+- Always run tests after code changes
+- Commit frequently with descriptive messages
+- Use dvc add for new datasets
