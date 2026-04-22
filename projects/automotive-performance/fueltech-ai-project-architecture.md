@@ -133,7 +133,7 @@
 
 ### 3.3 Agent Design
 
-**Architecture:** Custom ReAct loop. No LangChain — demonstrates understanding of internals (interview differentiator).
+**Architecture:** Custom ReAct loop. No LangChain — keeps the agent internals transparent and auditable.
 
 **Tools:**
 

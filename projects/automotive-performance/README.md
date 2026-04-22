@@ -2,7 +2,7 @@
 
 > **Status:** Planning — no implementation yet.
 
-AI-powered diagnostic and tuning assistant for programmable ECU ecosystems, designed as a FuelTech portfolio project. The project combines a RAG pipeline over FuelTech technical content, a tool-calling agent for diagnostics and tuning recommendations, and edge deployment on a Raspberry Pi 5.
+AI-powered diagnostic and tuning assistant for programmable ECU ecosystems. The project combines a RAG pipeline over FuelTech technical content, a tool-calling agent for diagnostics and tuning recommendations, and edge deployment on a Raspberry Pi 5.
 
 ## Architecture
 

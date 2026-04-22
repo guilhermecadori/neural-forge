@@ -6,7 +6,7 @@ A personal monorepo for exploring and experimenting with AI/ML software engineer
 
 - **projects/** — self-contained explorations
   - `ai-swe-mlops` — reference MLOps pipeline with DVC data versioning and MLflow experiment tracking
-  - `automotive-performance` — architecture notes for a FuelTech AI portfolio project
+  - `automotive-performance` — architecture notes for an AI diagnostic and tuning assistant over FuelTech ECUs
   - `churn-prediction` — bank customer churn prediction with a DVC pipeline
   - `diesel-performance` — architecture notes for AURA, an edge AI diagnostic agent for diesel vehicles
   - `linux-docker-kubernetes` — Docker/Kubernetes course labs for deploying ML models
