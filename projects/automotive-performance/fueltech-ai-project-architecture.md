@@ -1,35 +1,31 @@
-# AutoDiag AI → FuelTech AI Portfolio Project
+# AutoDiag AI
 
-**Project:** AI-powered diagnostic and tuning assistant for programmable ECU ecosystems  
-**Target Roles:** AI Specialist — Conversational Systems | AI Specialist — Data Analysis & Specialized Models  
-**Company:**   
-**Author:** Guilherme  
+> AI-powered diagnostic and tuning assistant for programmable ECU ecosystems.
+
 **Status:** Planning
 
 ---
 
-## 1. Strategic Alignment
+## 1. Capabilities
 
-This project is designed as a **direct capability demonstration** for both FuelTech AI roles. Every component maps to a specific job requirement.
+### Conversational AI Systems
 
-### Role 1 — Conversational AI Systems
-
-| Job Requirement | Project Component |
-|-----------------|-------------------|
-| RAG pipelines for large-scale technical docs | FuelTech doc corpus ingestion (manuals, FT Education, YT transcripts) |
-| AI agent orchestration solving real user problems | Tool-calling agent: diagnose, explain, recommend tuning adjustments |
+| Capability | Implementation |
+|------------|----------------|
+| RAG pipelines over large-scale technical docs | FuelTech doc corpus ingestion (manuals, FT Education, YT transcripts) |
+| AI agent orchestration for real user problems | Tool-calling agent: diagnose, explain, recommend tuning adjustments |
 | Chat with memory, persistent context, personalization | Session memory tracking vehicle profile, tuning history, user skill level |
 | Evaluate and integrate different LLMs (quality/cost/latency) | Benchmark matrix: GPT-4o-mini vs Claude Haiku vs Llama 3.2 3B vs Phi-3.5 |
 | Automatic report generation from data | Telemetry summary reports from logged sensor sessions |
 | Cost control strategies per user profile | Token budgeting: edge (free) vs cloud (metered), routing logic |
 | Prompt engineering, function calling, tool use | Custom ReAct agent with structured tool definitions |
 
-### Role 2 — Data Analysis & Specialized Models
+### Data Analysis & Specialized Models
 
-| Job Requirement | Project Component |
-|-----------------|-------------------|
+| Capability | Implementation |
+|------------|----------------|
 | Anomaly detection in large data volumes | Sensor anomaly detection on telemetry streams (coolant, AFR, knock) |
-| Fine-tune specialized models | Fine-tune small classifier on DTC pattern recognition |
+| Fine-tuned specialized models | Fine-tune small classifier on DTC pattern recognition |
 | Actionable recommendations from raw data | "Your AFR is running lean at high RPM — check injector sizing" |
 | Parsers/pipelines for diverse data formats | OBD-II PID decoder, FuelTech log parser, PDF/video transcript ingestion |
 | Lightweight models on mobile/edge | Quantized LLM + anomaly detector on Raspberry Pi 5 |
@@ -141,16 +137,16 @@ This project is designed as a **direct capability demonstration** for both FuelT
 
 **Tools:**
 
-| Tool | Signature | Purpose | Maps to Role |
-|------|-----------|---------|-------------|
-| `read_sensor` | (name: str) → value, unit, range, status | Real-time OBD-II read | Role 2 |
-| `read_dtc` | () → List[DTC] | Active fault codes | Role 1+2 |
-| `query_docs` | (query: str, top_k: int, filter: dict) → chunks[] | RAG retrieval | Role 1 |
-| `analyze_trend` | (sensor: str, window_sec: int) → stats + trend | Temporal analysis | Role 2 |
-| `detect_anomaly` | (sensor: str) → anomaly_flag, details | Statistical anomaly detection | Role 2 |
-| `generate_report` | (session_id: str) → markdown/PDF | Session summary report | Role 1 |
-| `get_vehicle_profile` | () → VehicleProfile | Stored vehicle metadata | Role 1 |
-| `suggest_tuning` | (param: str, goal: str) → recommendation | Domain-specific recommendation | Role 1+2 |
+| Tool | Signature | Purpose |
+|------|-----------|---------|
+| `read_sensor` | (name: str) → value, unit, range, status | Real-time OBD-II read |
+| `read_dtc` | () → List[DTC] | Active fault codes |
+| `query_docs` | (query: str, top_k: int, filter: dict) → chunks[] | RAG retrieval |
+| `analyze_trend` | (sensor: str, window_sec: int) → stats + trend | Temporal analysis |
+| `detect_anomaly` | (sensor: str) → anomaly_flag, details | Statistical anomaly detection |
+| `generate_report` | (session_id: str) → markdown/PDF | Session summary report |
+| `get_vehicle_profile` | () → VehicleProfile | Stored vehicle metadata |
+| `suggest_tuning` | (param: str, goal: str) → recommendation | Domain-specific recommendation |
 
 **Agent loop constraints:**
 - Max 6 tool calls per turn
@@ -185,9 +181,7 @@ class SessionContext:
 - `tuner`: technical but practical, AFR/timing references, actionable
 - `engineer`: raw data, statistical details, confidence intervals
 
-This directly addresses the Role 1 requirement: *"chat com memória, contexto persistente e personalização."*
-
-### 3.5 Anomaly Detection (Role 2 Focus)
+### 3.5 Anomaly Detection
 
 Lightweight statistical model running on sensor streams:
 
@@ -221,8 +215,6 @@ elif query_complexity == "complex" (multi-sensor analysis, tuning recommendation
     → cloud model (metered)
 ```
 
-This directly demonstrates the Role 1 requirement: *"definir estratégias de controle de custos de IA para diferentes perfis de usuário."*
-
 ### 3.7 Report Generation
 
 Automatic session reports from telemetry data:
@@ -252,8 +244,6 @@ Automatic session reports from telemetry data:
 [Condensed conversation log]
 ```
 
-Directly maps to: *"construir geração automática de relatórios e análises a partir de dados."*
-
 ---
 
 ## 4. Hardware & Estimated Cost
@@ -273,8 +263,7 @@ Directly maps to: *"construir geração automática de relatórios e análises a
 ## 5. Phased Build Plan
 
 ### Phase 1: RAG Pipeline + LLM Evaluation (Weeks 1–2)
-> **Deliverable:** Working RAG system over FuelTech-domain docs with quantitative eval.  
-> **Role alignment:** Role 1 core competency.
+> **Deliverable:** Working RAG system over FuelTech-domain docs with quantitative eval.
 
 - [ ] Collect corpus: download FT manuals (FT600, FT550, FT450), scrape FT Education transcripts, build DTC database
 - [ ] Implement domain-aware chunking (section-based for manuals, topic-based for transcripts, structured for DTCs)
@@ -285,8 +274,7 @@ Directly maps to: *"construir geração automática de relatórios e análises a
 - [ ] Document all architecture decisions and tradeoffs
 
 ### Phase 2: Agent + OBD-II + Memory (Weeks 3–4)
-> **Deliverable:** Tool-calling agent with session memory, running on laptop + ELM327.  
-> **Role alignment:** Role 1 (agent, memory, personalization) + Role 2 (sensor data).
+> **Deliverable:** Tool-calling agent with session memory, running on laptop + ELM327.
 
 - [ ] Set up python-obd + ELM327, validate sensor reads on your car
 - [ ] Implement all 8 tool functions
@@ -298,8 +286,7 @@ Directly maps to: *"construir geração automática de relatórios e análises a
 - [ ] Log all agent traces
 
 ### Phase 3: Edge Deployment + Cost Routing (Weeks 5–6)
-> **Deliverable:** Full system on Raspberry Pi 5 with edge/cloud routing.  
-> **Role alignment:** Role 2 (edge deployment, optimization) + Role 1 (cost control).
+> **Deliverable:** Full system on Raspberry Pi 5 with edge/cloud routing.
 
 - [ ] Set up Pi 5, install llama-cpp-python ARM build
 - [ ] Port full stack to Pi, benchmark latency per component
@@ -310,25 +297,24 @@ Directly maps to: *"construir geração automática de relatórios e análises a
 - [ ] Document edge vs cloud accuracy delta on eval set
 - [ ] Stress test: 30-min driving session, thermal + latency monitoring
 
-### Phase 4: Demo & Portfolio (Week 7)
+### Phase 4: Packaging & Release (Week 7)
 > **Deliverable:** Video demo + GitHub repo + technical write-up.
 
 - [ ] Record video: hardware → car connection → live diagnostic conversation → report generation
 - [ ] README with architecture diagram, setup, benchmarks
-- [ ] Technical blog post: design decisions, FuelTech domain alignment, tradeoffs
+- [ ] Technical write-up: design decisions, domain alignment, tradeoffs
 - [ ] Clean repo: tests, CI, Docker for non-Pi environments
-- [ ] Publish GitHub, LinkedIn post, send to FuelTech recruiters
 
 ---
 
-## 6. Key Differentiators for FuelTech Application
+## 6. Design Principles
 
 1. **Domain specificity:** Built on FuelTech's actual product ecosystem, not generic OBD-II
-2. **Both roles in one project:** RAG + agents + memory (Role 1) AND edge deployment + anomaly detection + fine-tuning (Role 2)
+2. **Integrated scope:** RAG + agents + memory combined with edge deployment, anomaly detection, and fine-tuning in a single system
 3. **Production thinking:** Cost routing, safety rails, personalization by user skill — not a toy demo
 4. **Bilingual:** System handles pt-br and English queries and documentation
 5. **Quantitative rigor:** Every design choice backed by benchmark data
-6. **Mathematical background:** Anomaly detection and optimization decisions grounded in your applied math training
+6. **Mathematical grounding:** Anomaly detection and optimization decisions backed by applied-math reasoning
 
 ---
 
@@ -435,4 +421,3 @@ OS:                 Ubuntu Server 24.04 (arm64)
 | Pi 5 RAM too tight | Can't run full stack | Profile Phase 1; mmap model; reduce embedding dim |
 | Car has limited PID support | Boring demo | Check PID support first with free OBD app |
 | Scope creep | Never ships | Phase 4 is a hard deadline — demo what's working |
-| FuelTech hires before project is done | Missed window | Phase 1 alone is a credible application artifact |
