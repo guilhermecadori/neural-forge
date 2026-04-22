@@ -3,18 +3,15 @@
 > Edge AI Copilot for Vehicle Diagnostics under Resource Constraints
 
 **Vehicle:** VW Amarok V6 3.0 TDI (2021+, stock OEM ECU)  
-**Target Roles:** AI Specialist — Conversational Systems | AI Specialist — Data Analysis & Specialized Models  
-**Target Company:** FuelTech  
-**Author:** Guilherme  
 **Status:** Planning
 
 ---
 
-## 1. Strategic Alignment
+## 1. Capabilities
 
-AURA demonstrates every core competency from both FuelTech AI roles using a real vehicle as the test platform. The Amarok V6 3.0 TDI is ideal: modern CAN bus with rich PID support, turbodiesel complexity (boost, EGT, DPF, injector balance), and a large Brazilian owner community generating domain-specific content for the RAG corpus.
+AURA exercises a full set of modern AI capabilities — RAG, tool-calling agents, anomaly detection, edge deployment — using a real vehicle as the test platform. The Amarok V6 3.0 TDI is well suited: modern CAN bus with rich PID support, turbodiesel complexity (boost, EGT, DPF, injector balance), and a large Brazilian owner community generating domain-specific content for the RAG corpus.
 
-Although the vehicle runs a stock OEM ECU (not FuelTech), the skills demonstrated are directly transferable: the diagnostic reasoning, document retrieval, sensor analysis, and edge deployment are ECU-agnostic. The project narrative to FuelTech: *"I built the AI layer your customers would interact with — here it is working on a real vehicle."*
+The diagnostic reasoning, document retrieval, sensor analysis, and edge deployment are ECU-agnostic, so the architecture applies to any programmable ECU ecosystem.
 
 ### AURA Subsystems
 
@@ -26,24 +23,24 @@ Although the vehicle runs a stock OEM ECU (not FuelTech), the skills demonstrate
 | **AURA Edge** | Quantized LLM, Pi 5 deployment, cost routing |
 | **AURA Voice** | STT/TTS loop, hands-free interaction |
 
-### Role 1 — Conversational AI Systems
+### Conversational AI Systems
 
-| Job Requirement | AURA Component |
-|-----------------|----------------|
-| RAG pipelines for large-scale technical docs | AURA RAG: VW/Amarok manuals, TDI docs, diesel guides, community knowledge |
-| AI agent orchestration solving real user problems | AURA Core: tool-calling agent — diagnose DTCs, explain sensor data, recommend maintenance |
+| Capability | AURA Component |
+|------------|----------------|
+| RAG over large-scale technical docs | AURA RAG: VW/Amarok manuals, TDI docs, diesel guides, community knowledge |
+| AI agent orchestration for real user problems | AURA Core: tool-calling agent — diagnose DTCs, explain sensor data, recommend maintenance |
 | Chat with memory, persistent context, personalization | AURA Core: vehicle profile, session history, user skill adaptation |
 | Evaluate and integrate different LLMs (quality/cost/latency) | AURA Edge: benchmark matrix — edge models vs cloud APIs on automotive QA |
 | Automatic report generation from data | AURA Core: telemetry session reports with anomaly flags and maintenance recommendations |
 | Cost control strategies per user profile | AURA Edge: edge/cloud routing based on query complexity |
 | Prompt engineering, function calling, tool use | AURA Core: custom ReAct agent with 8 structured tools |
 
-### Role 2 — Data Analysis & Specialized Models
+### Data Analysis & Specialized Models
 
-| Job Requirement | AURA Component |
-|-----------------|----------------|
+| Capability | AURA Component |
+|------------|----------------|
 | Anomaly detection in large data volumes | AURA Sense: real-time detection on diesel sensors (EGT, boost, DPF differential pressure) |
-| Fine-tune specialized models | Fine-tuned DTC classifier / severity ranker on labeled automotive data |
+| Fine-tuned specialized models | Fine-tuned DTC classifier / severity ranker on labeled automotive data |
 | Actionable recommendations from raw data | "Boost pressure dropping at altitude — turbo actuator may need inspection" |
 | Parsers/pipelines for diverse data formats | AURA Sense: OBD-II PID decoder, VW-specific extended PIDs, PDF manual parser, forum scraper |
 | Lightweight models on mobile/edge | AURA Edge: quantized LLM + anomaly detector on Raspberry Pi 5 |
@@ -58,7 +55,7 @@ Although the vehicle runs a stock OEM ECU (not FuelTech), the skills demonstrate
 |----------|------|----------|---------------------|
 | English | Primary — all core logic, prompts, tool definitions, eval datasets, agent reasoning | MVP | Phases 1–4 |
 | Brazilian Portuguese | Support — user-facing responses, RAG corpus (forums, manuals), STT/TTS | MVP (secondary) | Phases 1–4 |
-| Spanish | Future — extends market reach (FuelTech has strong LatAm presence) | Post-MVP | Phase 7+ |
+| Spanish | Future — extends reach across Spanish-speaking LatAm markets | Post-MVP | Phase 7+ |
 
 **Architecture implications:**
 
@@ -71,12 +68,12 @@ Although the vehicle runs a stock OEM ECU (not FuelTech), the skills demonstrate
 - **Eval datasets:** 80+ queries — 60% English, 40% Portuguese. Measure retrieval and generation quality per language separately.
 
 **Spanish expansion (Phase 7+):**
-- Add es corpus (FuelTech has Spanish-speaking customers across LatAm)
+- Add es corpus (covers Spanish-speaking LatAm users)
 - Whisper and Piper both support Spanish — no model changes needed
 - BGE-m3 already covers Spanish embeddings
 - Main work: curate Spanish automotive corpus, extend eval dataset, test retrieval quality
 
-**Why English-first matters for FuelTech:** Their technical documentation (ECU manuals, FT Education) is primarily in English and Portuguese. The AI roles require English intermediário. Demonstrating a system that reasons in English but responds in the user's language shows production-grade multilingual design, not just a translated UI.
+**Why English-first matters:** Automotive technical documentation is primarily in English, but Brazilian users consume it daily in pt-br. A system that reasons in English internally but responds in the user's language is production-grade multilingual design, not just a translated UI.
 
 ---
 
@@ -546,7 +543,7 @@ complex (multi-sensor correlation, trend analysis, tuning advice) → cloud
 - [ ] Document edge vs cloud accuracy delta
 - [ ] Measure router accuracy, cost savings vs full-cloud baseline
 
-### Phase 4: Demo Video + Portfolio (Week 7)
+### Phase 4: Packaging & Release (Week 7)
 > **Deliverable:** Video recorded in/with the Amarok + polished GitHub repo.
 
 **Video script outline:**
@@ -562,7 +559,7 @@ complex (multi-sensor correlation, trend analysis, tuning advice) → cloud
 - [ ] Record and edit video (5-8 min target)
 - [ ] Clean GitHub repo: README, architecture diagram, benchmarks, setup guide
 - [ ] Technical blog post
-- [ ] Publish, share with FuelTech
+- [ ] Publish
 
 ### Phase 5: AURA Voice — Hands-Free Queries (Week 8)
 > **Deliverable:** Speak to AURA, read the answer on screen.  
@@ -812,7 +809,6 @@ OS:                 Ubuntu Server 24.04 (arm64)
 | Pi 5 thermal throttling in car (Brazilian summer) | Degraded performance | Active cooling + shaded mount location |
 | Forum content low quality for RAG | Poor retrieval | Curate aggressively; label quality tiers in metadata |
 | Scope creep | Never ships | Phase 1 AURA RAG alone is a credible artifact |
-| FuelTech hires before project complete | Missed window | Apply after Phase 1 with RAG demo; continue in parallel |
 | Whisper pt-br accuracy with engine noise | Poor STT in car | Test with engine on before committing; fallback to text |
 | Pi 5 RAM exhausted | OOM crashes | Profile aggressively; mmap models; drop to Whisper tiny |
 | Voice-to-voice latency >10s | Poor UX | "Thinking" audio cue; short spoken summary + full text on screen |
