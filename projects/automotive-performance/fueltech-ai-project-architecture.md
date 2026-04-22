@@ -1,7 +1,7 @@
 # AutoDiag AI → FuelTech AI Portfolio Project
 
 **Project:** AI-powered diagnostic and tuning assistant for programmable ECU ecosystems  
-**Target Roles:** Especialista de IA — Sistemas Conversacionais | Especialista de IA — Análise de Dados & Modelos Especializados  
+**Target Roles:** AI Specialist — Conversational Systems | AI Specialist — Data Analysis & Specialized Models  
 **Company:**   
 **Author:** Guilherme  
 **Status:** Planning

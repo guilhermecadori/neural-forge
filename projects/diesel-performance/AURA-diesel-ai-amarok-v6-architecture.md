@@ -3,7 +3,7 @@
 > Edge AI Copilot for Vehicle Diagnostics under Resource Constraints
 
 **Vehicle:** VW Amarok V6 3.0 TDI (2021+, stock OEM ECU)  
-**Target Roles:** Especialista de IA — Sistemas Conversacionais | Especialista de IA — Análise de Dados & Modelos Especializados  
+**Target Roles:** AI Specialist — Conversational Systems | AI Specialist — Data Analysis & Specialized Models  
 **Target Company:** FuelTech  
 **Author:** Guilherme  
 **Status:** Planning
