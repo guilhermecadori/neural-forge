@@ -5,25 +5,32 @@
 # Instale o Docker Desktop.
 
 # ATENÇÃO: Abra a janela do Docker Desktop e mantenha aberta para inicializar o motor de execução Docker.
+OK
 
 # Instale o Kubectl na sua máquina host. Acesse o link abaixo e veja o procedimento de instalação de acordo com seu sistema operacional host:
 https://kubernetes.io/pt-br/docs/tasks/tools/
+OK
 
 # Valide a instalação checando a versão com o comando:
 kubectl version --client
+OK
 
 # Enquanto não visualizar a versão do kubectl não adianta seguir em frente. Primeiro instale o kubectl na máquina host.
+OK
 
 # Instale o minikube
 https://minikube.sigs.k8s.io/docs/start
+OK
 
 # Verifica a versão do Minikube instalada
 minikube version
-
+OK
 # Enquanto não visualizar a versão do Minikube não adianta seguir em frente. Primeiro instale o Minikube na máquina host.
+OK
 
 # Inicia o cluster Kubernetes local com Minikube
 minikube start
+OK
 
 # Exibe informações sobre o cluster Kubernetes atual
 kubectl cluster-info
