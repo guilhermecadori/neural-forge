@@ -1,6 +1,6 @@
 # neural-forge
 
-A personal monorepo for exploring and experimenting with AI/ML software engineering at a systems level. It consolidates reusable packages, project scaffolds, and architectural references used to prototype, benchmark, and iterate on production-oriented ML workflows.
+A personal monorepo for exploring and experimenting with AI/ML software engineering and AI/ML systems. It consolidates reusable packages, project scaffolds, and architectural references used to prototype, benchmark, and iterate on production-oriented ML workflows.
 
 ## Layout
 
