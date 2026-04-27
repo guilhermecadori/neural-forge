@@ -60,7 +60,7 @@ That wording fits your target transition into ML systems and performance enginee
 
 **Naming**
 
-**I would keep the package name clean and portfolio-friendly.**
+**Keep the package name clean and generic.**
 
 **Best options:**
 

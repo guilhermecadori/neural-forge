@@ -11,9 +11,19 @@ build/
 venv/
 env/
 
-# Secrets & config
+# Data (project data lives in DVC; only pointers are tracked)
+data/**
+!data/**/
+!data/**/.gitkeep
+!data/**/*.dvc
+
+# Secrets & credentials
 .env
+.env.*
+!.env.example
 *.key
+*.pem
+credentials.json
 
 # IDE
 .vscode/
@@ -53,23 +63,3 @@ htmlcov/
 
 # Claude Code local settings
 .claude/
-
-
-# --- baseline (templates/.gitignore-baseline) ---
-data/**
-!data/**/
-!data/**/.gitkeep
-!data/**/*.dvc
-.env
-.env.*
-!.env.example
-*.key
-*.pem
-credentials.json
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-env/
-.ipynb_checkpoints/
